@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PromptVault — AI Prompt Gallery</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0D0D0F; color: #e5e1e4; line-height: 1.6; }
+    .back { position: fixed; top: 20px; left: 24px; z-index: 100; display: flex; align-items: center; gap: 8px; color: #9f8e7a; text-decoration: none; font-size: 0.85rem; background: rgba(13,13,15,0.85); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 8px; border: 1px solid #2a2a2c; transition: color 0.2s; }
+    .back:hover { color: #ffc880; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 24px 64px; text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, #2a1a00 0%, #0D0D0F 65%);
+    }
+    .hero-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #f5a623; margin-bottom: 20px; font-family: 'Courier New', monospace; }
+    .hero-title { font-size: clamp(2.6rem, 8vw, 5rem); font-weight: 800; letter-spacing: -2px; line-height: 1.05; margin-bottom: 20px; }
+    .hero-title span { background: linear-gradient(90deg, #f5a623, #ffc880); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { font-size: 1.1rem; color: #9f8e7a; max-width: 500px; margin: 0 auto 48px; }
+    .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 80px; }
+    .btn-primary { background: #f5a623; color: #291800; text-decoration: none; padding: 15px 36px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: opacity 0.2s; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { border: 1px solid #2a2a2c; color: #9f8e7a; text-decoration: none; padding: 15px 32px; border-radius: 12px; font-size: 0.95rem; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: #f5a623; color: #ffc880; }
+
+    /* PREVIEW */
+    .preview-grid {
+      display: flex; gap: 12px; justify-content: center; align-items: flex-end; flex-wrap: wrap;
+    }
+    .preview-card {
+      background: #131315; border: 1px solid #2a2a2c; border-radius: 16px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .preview-card.tall { width: 140px; height: 220px; }
+    .preview-card.mid  { width: 140px; height: 180px; }
+    .preview-card.short{ width: 140px; height: 150px; }
+    .card-inner { width: 100%; height: 100%; background: linear-gradient(160deg, #1b1b1d 0%, #0D0D0F 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; }
+    .card-tag { font-size: 8px; font-family: 'Courier New', monospace; color: #f5a623; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .card-model { font-size: 8px; font-family: 'Courier New', monospace; color: #524534; }
+
+    /* FEATURES */
+    .features-section { padding: 96px 24px; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #f5a623; margin-bottom: 12px; font-family: 'Courier New', monospace; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+    .section-sub { color: #9f8e7a; font-size: 0.95rem; margin-bottom: 56px; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .feature { background: #131315; border: 1px solid #1b1b1d; border-radius: 16px; padding: 28px 24px; }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .feature-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: #e5e1e4; }
+    .feature-desc { font-size: 0.83rem; color: #9f8e7a; line-height: 1.6; }
+
+    /* PRIVACY LINK */
+    .privacy-section { padding: 32px 24px 80px; text-align: center; }
+    .privacy-section a { color: #f5a623; text-decoration: none; font-size: 0.9rem; }
+    .privacy-section a:hover { text-decoration: underline; }
+
+    footer { padding: 24px; text-align: center; color: #524534; font-size: 0.82rem; border-top: 1px solid #1b1b1d; }
+    footer a { color: #f5a623; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <a class="back" href="../index.html">← Indi Techs</a>
+
+  <div class="hero">
+    <div class="hero-eyebrow">AI Prompt Archive · Android</div>
+    <h1 class="hero-title">The <span>prompt</span><br>behind the image.</h1>
+    <p class="hero-sub">Browse a curated gallery of AI-generated art. Tap to reveal the prompt, copy it, and create.</p>
+    <div class="hero-cta">
+      <a href="https://play.google.com/store" class="btn-primary">▶ Coming to Google Play</a>
+      <a href="privacy.html" class="btn-ghost">Privacy Policy</a>
+    </div>
+
+    <!-- Mockup cards -->
+    <div class="preview-grid">
+      <div class="preview-card short">
+        <div class="card-inner">
+          <div class="card-tag">Cinematic</div>
+          <div class="card-model">Midjourney v6</div>
+        </div>
+      </div>
+      <div class="preview-card tall">
+        <div class="card-inner">
+          <div class="card-tag">Portrait</div>
+          <div class="card-model">DALL·E 3</div>
+        </div>
+      </div>
+      <div class="preview-card mid">
+        <div class="card-inner">
+          <div class="card-tag">Abstract</div>
+          <div class="card-model">Stable Diffusion</div>
+        </div>
+      </div>
+      <div class="preview-card tall">
+        <div class="card-inner">
+          <div class="card-tag">Landscape</div>
+          <div class="card-model">Flux Pro</div>
+        </div>
+      </div>
+      <div class="preview-card short">
+        <div class="card-inner">
+          <div class="card-tag">Concept Art</div>
+          <div class="card-model">Firefly</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="features-section">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Built for prompt hunters</h2>
+    <p class="section-sub">Everything you need to discover, save, and use the best AI prompts.</p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">◈</div>
+        <div class="feature-title">Curated Gallery</div>
+        <div class="feature-desc">Browse a moderated archive of high-quality AI-generated images with verified prompts.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⎘</div>
+        <div class="feature-title">One-Tap Copy</div>
+        <div class="feature-desc">Tap any prompt to copy it instantly. Ready to paste into your favourite AI tool.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">★</div>
+        <div class="feature-title">Personal Vault</div>
+        <div class="feature-desc">Save your favourite prompts locally. Your collection, offline, always available.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⊞</div>
+        <div class="feature-title">Adaptive Grid</div>
+        <div class="feature-desc">Switch between compact, default, and full-size grid views to browse your way.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⌕</div>
+        <div class="feature-title">Search & Filter</div>
+        <div class="feature-desc">Search by keyword or filter by model, style, and category tags.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⊕</div>
+        <div class="feature-title">Submit Your Own</div>
+        <div class="feature-desc">Submit your generations for community review and get featured in the archive.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-section">
+    <a href="privacy.html">Privacy Policy</a>
+  </div>
+
+  <footer>
+    <p>© 2025 PromptVault · Indi Techs &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="mailto:bodar.tirth@gmail.com">bodar.tirth@gmail.com</a></p>
+  </footer>
+</body>
+</html>
