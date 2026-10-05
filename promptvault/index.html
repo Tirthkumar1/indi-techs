@@ -5,148 +5,706 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PromptVault — AI Prompt Gallery</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0D0D0F; color: #e5e1e4; line-height: 1.6; }
-    .back { position: fixed; top: 20px; left: 24px; z-index: 100; display: flex; align-items: center; gap: 8px; color: #9f8e7a; text-decoration: none; font-size: 0.85rem; background: rgba(13,13,15,0.85); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 8px; border: 1px solid #2a2a2c; transition: color 0.2s; }
-    .back:hover { color: #ffc880; }
+
+    :root {
+      --bg: #0A0907;
+      --card: #121008;
+      --border: #1E1A12;
+      --border-2: #2A2318;
+      --text: #F0EAE0;
+      --sub: #A89880;
+      --muted: #5A4E3E;
+      --accent: #D97706;
+      --accent-light: #F5A623;
+      --accent-dim: #1E1408;
+      --glow: rgba(217,119,6,0.15);
+    }
+
+    body {
+      font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 60px;
+      background: rgba(10,9,7,0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff;
+    }
+    .nav-logo-text {
+      font-family: 'Libre Caslon Text', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link {
+      color: var(--sub);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: color .2s, background .2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--card); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 10px;
+      transition: opacity .2s;
+    }
+    .nav-cta:hover { opacity: .85; }
 
     /* HERO */
     .hero {
-      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 80px 24px 64px; text-align: center;
-      background: radial-gradient(ellipse at 50% 0%, #2a1a00 0%, #0D0D0F 65%);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 120px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    .hero-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #f5a623; margin-bottom: 20px; font-family: 'Courier New', monospace; }
-    .hero-title { font-size: clamp(2.6rem, 8vw, 5rem); font-weight: 800; letter-spacing: -2px; line-height: 1.05; margin-bottom: 20px; }
-    .hero-title span { background: linear-gradient(90deg, #f5a623, #ffc880); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-sub { font-size: 1.1rem; color: #9f8e7a; max-width: 500px; margin: 0 auto 48px; }
-    .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 80px; }
-    .btn-primary { background: #f5a623; color: #291800; text-decoration: none; padding: 15px 36px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: opacity 0.2s; }
-    .btn-primary:hover { opacity: 0.88; }
-    .btn-ghost { border: 1px solid #2a2a2c; color: #9f8e7a; text-decoration: none; padding: 15px 32px; border-radius: 12px; font-size: 0.95rem; transition: border-color 0.2s, color 0.2s; }
-    .btn-ghost:hover { border-color: #f5a623; color: #ffc880; }
-
-    /* PREVIEW */
-    .preview-grid {
-      display: flex; gap: 12px; justify-content: center; align-items: flex-end; flex-wrap: wrap;
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217,119,6,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 20% 80%, rgba(217,119,6,0.06) 0%, transparent 60%);
+      pointer-events: none;
     }
-    .preview-card {
-      background: #131315; border: 1px solid #2a2a2c; border-radius: 16px;
-      overflow: hidden; flex-shrink: 0;
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(217,119,6,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 28px;
     }
-    .preview-card.tall { width: 140px; height: 220px; }
-    .preview-card.mid  { width: 140px; height: 180px; }
-    .preview-card.short{ width: 140px; height: 150px; }
-    .card-inner { width: 100%; height: 100%; background: linear-gradient(160deg, #1b1b1d 0%, #0D0D0F 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; }
-    .card-tag { font-size: 8px; font-family: 'Courier New', monospace; color: #f5a623; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
-    .card-model { font-size: 8px; font-family: 'Courier New', monospace; color: #524534; }
+    .hero-eyebrow::before { content: '◈'; font-size: 10px; }
+    .hero-title {
+      font-family: 'Libre Caslon Text', serif;
+      font-size: clamp(3rem, 9vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1.0;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+    .hero-title .gold {
+      background: linear-gradient(100deg, #D97706 20%, #F5A623 60%, #FFC880 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--sub);
+      max-width: 460px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 72px; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: opacity .2s, transform .15s;
+      box-shadow: 0 4px 24px rgba(217,119,6,0.3);
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-ghost {
+      border: 1px solid var(--border-2);
+      color: var(--sub);
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent-light); }
 
-    /* FEATURES */
-    .features-section { padding: 96px 24px; max-width: 1000px; margin: 0 auto; }
-    .section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #f5a623; margin-bottom: 12px; font-family: 'Courier New', monospace; }
-    .section-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
-    .section-sub { color: #9f8e7a; font-size: 0.95rem; margin-bottom: 56px; }
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-    .feature { background: #131315; border: 1px solid #1b1b1d; border-radius: 16px; padding: 28px 24px; }
-    .feature-icon { font-size: 1.8rem; margin-bottom: 12px; }
-    .feature-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: #e5e1e4; }
-    .feature-desc { font-size: 0.83rem; color: #9f8e7a; line-height: 1.6; }
+    /* PHONE MOCKUP */
+    .phone-wrap {
+      position: relative;
+      display: flex; gap: 16px; align-items: flex-end; justify-content: center;
+      flex-wrap: wrap;
+    }
+    .mock-phone {
+      background: var(--card);
+      border: 1px solid var(--border-2);
+      border-radius: 28px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
+      position: relative;
+    }
+    .mock-phone.main { width: 200px; }
+    .mock-phone.side { width: 155px; opacity: 0.7; }
+    .mock-screen {
+      padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .mock-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mock-logo { font-family: 'Libre Caslon Text', serif; font-size: 13px; font-weight: 700; color: var(--text); }
+    .mock-badge {
+      background: var(--accent-dim);
+      border: 1px solid rgba(217,119,6,0.25);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      color: var(--accent-light);
+      letter-spacing: 1px;
+    }
+    .mock-img {
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #1E1810 0%, #0D0A06 100%);
+      display: flex; align-items: flex-end;
+      position: relative;
+    }
+    .mock-img.tall { height: 140px; }
+    .mock-img.mid { height: 108px; }
+    .mock-img-overlay {
+      padding: 8px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+      width: 100%;
+    }
+    .mock-tag { font-family: 'JetBrains Mono', monospace; font-size: 7px; color: var(--accent-light); letter-spacing: 1.5px; text-transform: uppercase; }
+    .mock-model { font-family: 'JetBrains Mono', monospace; font-size: 7px; color: var(--muted); margin-top: 1px; }
+    .mock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .mock-grid-item {
+      border-radius: 10px;
+      background: linear-gradient(145deg, #1A1510, #0D0A06);
+      height: 64px;
+      border: 1px solid var(--border);
+    }
 
-    /* PRIVACY LINK */
-    footer { padding: 24px; text-align: center; color: #524534; font-size: 0.82rem; border-top: 1px solid #1b1b1d; }
-    footer a { color: #f5a623; text-decoration: none; }
+    /* GENERATE FEATURE HIGHLIGHT */
+    .generate-section {
+      max-width: 1040px; margin: 0 auto;
+      padding: 100px 24px;
+    }
+    .generate-inner {
+      background: linear-gradient(135deg, var(--card) 0%, #0F0B05 100%);
+      border: 1px solid rgba(217,119,6,0.2);
+      border-radius: 28px;
+      padding: 56px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .generate-inner::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(217,119,6,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .new-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(217,119,6,0.15);
+      border: 1px solid rgba(217,119,6,0.35);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 20px;
+    }
+    .generate-title {
+      font-family: 'Libre Caslon Text', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .generate-title .gold {
+      background: linear-gradient(90deg, #D97706, #F5A623);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .generate-desc { color: var(--sub); font-size: 0.93rem; line-height: 1.75; margin-bottom: 28px; }
+    .generate-steps { display: flex; flex-direction: column; gap: 12px; }
+    .step {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .step-num {
+      width: 26px; height: 26px; flex-shrink: 0;
+      background: var(--accent-dim);
+      border: 1px solid rgba(217,119,6,0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent-light);
+      font-weight: 700;
+    }
+    .step-text { font-size: 13px; color: var(--sub); }
+    .step-text strong { color: var(--text); font-weight: 600; }
+
+    /* Generate mock UI */
+    .gen-mock {
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+    }
+    .gen-mock-header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .gen-mock-back { color: var(--sub); font-size: 18px; line-height: 1; }
+    .gen-mock-title { font-family: 'Libre Caslon Text', serif; font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+    .gen-mock-quota {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 8px;
+      text-align: center;
+    }
+    .gen-mock-quota span:first-child { font-family: 'Libre Caslon Text', serif; font-size: 15px; font-weight: 700; color: var(--text); display: block; line-height: 1; }
+    .gen-mock-quota span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .gen-mock-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .gen-mock-prompt {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .gen-mock-lbl { font-family: 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .gen-mock-text { font-family: 'Libre Caslon Text', serif; font-size: 10px; color: var(--sub); line-height: 1.6; }
+    .gen-mock-photo {
+      border: 1.5px dashed var(--border-2);
+      border-radius: 16px;
+      height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 5px;
+      background: var(--card);
+      position: relative; overflow: hidden;
+    }
+    .gen-mock-photo-fill {
+      position: absolute; inset: 0;
+      background: linear-gradient(145deg, #1E1810 0%, #0D0A06 100%);
+      display: flex; align-items: flex-end;
+    }
+    .gen-mock-photo-fill-inner { padding: 10px 12px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%; }
+    .gen-mock-change { font-size: 9px; color: #fff; font-weight: 600; background: rgba(0,0,0,0.55); border-radius: 6px; padding: 3px 8px; display: inline-block; }
+    .gen-mock-btn {
+      background: var(--accent);
+      border-radius: 12px;
+      padding: 13px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+
+    /* FESTIVALS FEATURE */
+    .festivals-section {
+      max-width: 1040px; margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+    .festivals-inner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 56px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .festivals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .fest-card {
+      border-radius: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      overflow: hidden;
+    }
+    .fest-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .fest-img { height: 48px; background: linear-gradient(145deg, #1E1810, #0D0A06); }
+    .fest-img:nth-child(2) { background: linear-gradient(145deg, #0E1A10, #060D08); }
+    .fest-img:nth-child(3) { background: linear-gradient(145deg, #0D0E1A, #06080D); }
+    .fest-img:nth-child(4) { background: linear-gradient(145deg, #1A0D0E, #0D0607); }
+    .fest-info { padding: 8px 10px; }
+    .fest-name { font-size: 10px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .fest-count { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--muted); }
+
+    /* FEATURES GRID */
+    .features-section { padding: 0 24px 96px; max-width: 1040px; margin: 0 auto; }
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Libre Caslon Text', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .section-sub { color: var(--sub); font-size: 0.9rem; margin-bottom: 48px; max-width: 500px; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .feature {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 22px;
+      transition: border-color .2s;
+    }
+    .feature:hover { border-color: var(--border-2); }
+    .feature-icon { font-size: 22px; margin-bottom: 14px; color: var(--accent-light); }
+    .feature-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+    .feature-desc { font-size: 12px; color: var(--sub); line-height: 1.65; }
+
+    /* DIVIDER */
+    .divider-full { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* FOOTER */
+    footer {
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    footer a { color: var(--accent-light); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      .generate-inner, .festivals-inner { grid-template-columns: 1fr; padding: 36px 24px; gap: 36px; }
+      .gen-mock, .festivals-grid { display: none; }
+      nav .nav-link { display: none; }
+      .hero-title { letter-spacing: -1px; }
+    }
   </style>
 </head>
 <body>
-  <a class="back" href="../index.html">← Indi Techs</a>
 
-  <div class="hero">
-    <div class="hero-eyebrow">AI Prompt Archive · Android</div>
-    <h1 class="hero-title">The <span>prompt</span><br>behind the image.</h1>
-    <p class="hero-sub">Browse a curated gallery of AI-generated art. Tap to reveal the prompt, copy it, and create.</p>
-    <div class="hero-cta">
-      <a href="https://play.google.com/store" class="btn-primary">▶ Coming to Google Play</a>
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div class="nav-logo-mark">◈</div>
+      <span class="nav-logo-text">PromptVault</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="privacy.html" class="nav-link">Privacy</a>
+      <a href="https://play.google.com/store/apps/details?id=io.promptvault.app" class="nav-cta" target="_blank">Get the app</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">AI Prompt Gallery · Android</div>
+    <h1 class="hero-title">The <span class="gold">prompt</span><br>behind the image.</h1>
+    <p class="hero-sub">A curated gallery of AI-generated art. Tap to reveal the prompt, copy it, and create — or put yourself in the scene.</p>
+    <div class="hero-btns">
+      <a href="https://play.google.com/store/apps/details?id=io.promptvault.app" class="btn-primary" target="_blank">▶  Get on Google Play</a>
       <a href="privacy.html" class="btn-ghost">Privacy Policy</a>
     </div>
 
-    <!-- Mockup cards -->
-    <div class="preview-grid">
-      <div class="preview-card short">
-        <div class="card-inner">
-          <div class="card-tag">Cinematic</div>
-          <div class="card-model">Midjourney v6</div>
+    <!-- Phone mockup -->
+    <div class="phone-wrap">
+      <div class="mock-phone side" style="margin-bottom:24px">
+        <div class="mock-screen">
+          <div class="mock-header">
+            <span class="mock-logo">GENERATE</span>
+            <span class="mock-badge">FLUX.2</span>
+          </div>
+          <div class="mock-img mid" style="margin-top:4px">
+            <div class="mock-img-overlay">
+              <div class="mock-tag">Portrait</div>
+              <div class="mock-model">Reference photo</div>
+            </div>
+          </div>
+          <div style="background:#D97706;border-radius:10px;padding:10px;text-align:center;font-size:9px;font-weight:700;color:#fff;margin-top:4px">▶ Watch 2 Ads & Generate</div>
         </div>
       </div>
-      <div class="preview-card tall">
-        <div class="card-inner">
-          <div class="card-tag">Portrait</div>
-          <div class="card-model">DALL·E 3</div>
+
+      <div class="mock-phone main">
+        <div class="mock-screen">
+          <div class="mock-header">
+            <span class="mock-logo">PromptVault</span>
+            <span class="mock-badge">◈ 2×2</span>
+          </div>
+          <div class="mock-img tall">
+            <div class="mock-img-overlay">
+              <div class="mock-tag">Cinematic</div>
+              <div class="mock-model">Midjourney v6</div>
+            </div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-grid-item"></div>
+            <div class="mock-grid-item"></div>
+          </div>
         </div>
       </div>
-      <div class="preview-card mid">
-        <div class="card-inner">
-          <div class="card-tag">Abstract</div>
-          <div class="card-model">Stable Diffusion</div>
-        </div>
-      </div>
-      <div class="preview-card tall">
-        <div class="card-inner">
-          <div class="card-tag">Landscape</div>
-          <div class="card-model">Flux Pro</div>
-        </div>
-      </div>
-      <div class="preview-card short">
-        <div class="card-inner">
-          <div class="card-tag">Concept Art</div>
-          <div class="card-model">Firefly</div>
+
+      <div class="mock-phone side" style="margin-bottom:24px">
+        <div class="mock-screen">
+          <div class="mock-header">
+            <span class="mock-logo">Festivals</span>
+            <span class="mock-badge">NEW</span>
+          </div>
+          <div class="mock-grid" style="margin-top:6px">
+            <div class="mock-grid-item" style="height:52px;border-radius:10px"></div>
+            <div class="mock-grid-item" style="height:52px;border-radius:10px"></div>
+            <div class="mock-grid-item" style="height:52px;border-radius:10px"></div>
+            <div class="mock-grid-item" style="height:52px;border-radius:10px"></div>
+          </div>
+          <div style="height:32px;background:var(--border);border-radius:10px;margin-top:6px"></div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <hr class="divider-full">
+
+  <!-- GENERATE FEATURE -->
+  <section class="generate-section">
+    <div class="generate-inner">
+      <div>
+        <div class="new-pill">✦ New Feature</div>
+        <h2 class="generate-title">Put yourself<br>in <span class="gold">any scene.</span></h2>
+        <p class="generate-desc">Upload your photo and let AI swap you into the prompt's world. Powered by FLUX.2 Klein — free to use, just watch two short ads.</p>
+        <div class="generate-steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Pick a prompt</strong> from the gallery that you love</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Tap "Generate with my photo"</strong> and choose a selfie</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Watch 2 short ads</strong> — then your image is generated</div>
+          </div>
+        </div>
+      </div>
+      <div class="gen-mock">
+        <div class="gen-mock-header">
+          <span class="gen-mock-back">←</span>
+          <span class="gen-mock-title">GENERATE</span>
+          <div class="gen-mock-quota">
+            <span>2</span>
+            <span>left</span>
+          </div>
+        </div>
+        <div class="gen-mock-body">
+          <div class="gen-mock-prompt">
+            <div class="gen-mock-lbl">Prompt</div>
+            <div class="gen-mock-text">A cinematic portrait at golden hour, dramatic mountain backdrop, 8K photography…</div>
+          </div>
+          <div class="gen-mock-lbl" style="margin-bottom:-4px">Your Photo</div>
+          <div class="gen-mock-photo">
+            <div class="gen-mock-photo-fill">
+              <div class="gen-mock-photo-fill-inner">
+                <span class="gen-mock-change">Change</span>
+              </div>
+            </div>
+          </div>
+          <div class="gen-mock-btn">▶  Watch 2 Ads & Generate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FESTIVALS FEATURE -->
+  <section class="festivals-section">
+    <div class="festivals-inner">
+      <div class="festivals-grid">
+        <div class="fest-card">
+          <div class="fest-preview">
+            <div class="fest-img"></div>
+            <div class="fest-img"></div>
+            <div class="fest-img"></div>
+            <div class="fest-img"></div>
+          </div>
+          <div class="fest-info">
+            <div class="fest-name">Coachella Vibes</div>
+            <div class="fest-count">48 prompts</div>
+          </div>
+        </div>
+        <div class="fest-card">
+          <div class="fest-preview">
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A0A1A,#0D060D)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A1A0A,#0D0D06)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#0A1A1A,#060D0D)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A0A0A,#0D0606)"></div>
+          </div>
+          <div class="fest-info">
+            <div class="fest-name">Burning Man</div>
+            <div class="fest-count">36 prompts</div>
+          </div>
+        </div>
+        <div class="fest-card">
+          <div class="fest-preview">
+            <div class="fest-img" style="background:linear-gradient(145deg,#0A0A1A,#06060D)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A0A0E,#0D0608)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#0E1A0A,#080D06)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A1A0A,#0D0D06)"></div>
+          </div>
+          <div class="fest-info">
+            <div class="fest-name">Tomorrowland</div>
+            <div class="fest-count">52 prompts</div>
+          </div>
+        </div>
+        <div class="fest-card">
+          <div class="fest-preview">
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A0A0A,#0D0606)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#0A1A0A,#060D06)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#1A1A1A,#0D0D0D)"></div>
+            <div class="fest-img" style="background:linear-gradient(145deg,#0A0A0A,#060606)"></div>
+          </div>
+          <div class="fest-info">
+            <div class="fest-name">Glastonbury</div>
+            <div class="fest-count">41 prompts</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="new-pill">Festival Collections</div>
+        <h2 class="generate-title">Themed drops for<br>every <span class="gold">moment.</span></h2>
+        <p class="generate-desc">Browse curated collections of prompts around the world's biggest festivals and events. Each collection tells a visual story — scroll the feed, save your favourites.</p>
+        <div class="generate-steps">
+          <div class="step">
+            <div class="step-num">🎪</div>
+            <div class="step-text"><strong>Themed collections</strong> curated around events and aesthetics</div>
+          </div>
+          <div class="step">
+            <div class="step-num">🖼</div>
+            <div class="step-text"><strong>2×2 preview grid</strong> so you see the vibe before you dive in</div>
+          </div>
+          <div class="step">
+            <div class="step-num">📸</div>
+            <div class="step-text"><strong>Tap any image</strong> to generate yourself into that scene</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- FEATURES -->
-  <div class="features-section">
-    <div class="section-label">Features</div>
+  <section class="features-section" id="features">
+    <div class="section-eyebrow">Everything included</div>
     <h2 class="section-title">Built for prompt hunters</h2>
-    <p class="section-sub">Everything you need to discover, save, and use the best AI prompts.</p>
+    <p class="section-sub">Everything you need to discover, save, use, and create with the best AI prompts.</p>
     <div class="features">
       <div class="feature">
         <div class="feature-icon">◈</div>
         <div class="feature-title">Curated Gallery</div>
-        <div class="feature-desc">Browse a moderated archive of high-quality AI-generated images with verified prompts.</div>
+        <div class="feature-desc">A moderated archive of high-quality AI-generated images with verified prompts behind every one.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✦</div>
+        <div class="feature-title">AI Generation</div>
+        <div class="feature-desc">Upload your photo and generate yourself into any prompt scene using FLUX.2 Klein, free with ads.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎪</div>
+        <div class="feature-title">Festival Collections</div>
+        <div class="feature-desc">Curated themed drops around the world's biggest festivals, updated regularly.</div>
       </div>
       <div class="feature">
         <div class="feature-icon">⎘</div>
         <div class="feature-title">One-Tap Copy</div>
-        <div class="feature-desc">Tap any prompt to copy it instantly. Ready to paste into your favourite AI tool.</div>
+        <div class="feature-desc">Tap any prompt to copy it instantly. Ready to paste into any AI tool you use.</div>
       </div>
       <div class="feature">
         <div class="feature-icon">★</div>
         <div class="feature-title">Personal Vault</div>
-        <div class="feature-desc">Save your favourite prompts locally. Your collection, offline, always available.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⊞</div>
-        <div class="feature-title">Adaptive Grid</div>
-        <div class="feature-desc">Switch between compact, default, and full-size grid views to browse your way.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⌕</div>
-        <div class="feature-title">Search & Filter</div>
-        <div class="feature-desc">Search by keyword or filter by model, style, and category tags.</div>
+        <div class="feature-desc">Save favourite prompts locally. Your collection, offline, always available.</div>
       </div>
       <div class="feature">
         <div class="feature-icon">⊕</div>
         <div class="feature-title">Submit Your Own</div>
-        <div class="feature-desc">Submit your generations for community review and get featured in the archive.</div>
+        <div class="feature-desc">Submit your generations for community review and get featured in the gallery.</div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <hr class="divider-full">
 
   <footer>
-    <p>© 2025 PromptVault · Indi Techs &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="mailto:bodar.tirth@gmail.com">bodar.tirth@gmail.com</a></p>
+    <div style="font-family:'Libre Caslon Text',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">PromptVault</div>
+    <div class="footer-links">
+      <a href="https://play.google.com/store/apps/details?id=io.promptvault.app" target="_blank">Google Play</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="mailto:bodar.tirth@gmail.com">Contact</a>
+      <a href="../index.html">Indi Techs</a>
+    </div>
+    <div>© 2025 PromptVault · Indi Techs</div>
   </footer>
+
 </body>
 </html>
