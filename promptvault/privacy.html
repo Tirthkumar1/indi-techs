@@ -29,15 +29,18 @@
   <div class="container">
     <div class="eyebrow">Legal</div>
     <h1>Privacy Policy</h1>
-    <div class="updated">Last updated: June 13, 2025</div>
+    <div class="updated">Last updated: October 5, 2025</div>
 
     <p>This Privacy Policy describes how PromptVault ("we", "our", or "us"), developed by Indi Techs, handles your information when you use our mobile application.</p>
 
     <h2>1. Information We Collect</h2>
     <p>PromptVault collects minimal information to operate the service:</p>
     <ul>
-      <li><strong>Images you upload:</strong> When you submit a prompt entry, the image(s) you select are uploaded to our secure storage to be displayed in the gallery after moderation.</li>
+      <li><strong>Images you submit:</strong> When you submit a prompt entry, the image(s) you select are uploaded to our secure storage to be displayed in the gallery after moderation.</li>
+      <li><strong>Reference photos for AI generation:</strong> When you use the Generate feature, the photo you select is temporarily uploaded to our secure storage solely to process your AI image. It is automatically deleted from our servers immediately after generation completes.</li>
+      <li><strong>AI-generated images:</strong> Images produced by the Generate feature are stored in our secure storage and accessible only to you via a time-limited private link.</li>
       <li><strong>Prompt text and metadata:</strong> The prompt, AI model name, and tags you submit are stored in our database.</li>
+      <li><strong>Anonymous usage identifier:</strong> To manage fair-use quotas for the Generate feature, we assign each device an anonymous identifier (no name, email, or account required). This identifier is used solely to track your daily generation count and is not linked to any personal information.</li>
       <li><strong>Saved preferences:</strong> Your grid view preference and saved prompts are stored locally on your device only and never transmitted to our servers.</li>
     </ul>
     <p>We do <strong>not</strong> collect your name, email address, phone number, or any account information. The app does not require you to create an account.</p>
@@ -48,41 +51,62 @@
     <ul>
       <li>Submitted images and prompts are reviewed by a moderator before being published in the gallery.</li>
       <li>Approved submissions are displayed publicly within the app to all users.</li>
+      <li>Reference photos you provide for the Generate feature are used exclusively to produce your requested AI image and are deleted immediately afterwards.</li>
+      <li>Your anonymous identifier is used only to enforce daily generation limits and prevent abuse of the free quota.</li>
       <li>We do not use your data for advertising profiling or sell it to third parties.</li>
     </ul>
 
     <hr class="divider" />
 
-    <h2>3. Third-Party Services</h2>
+    <h2>3. AI Image Generation</h2>
+    <p>PromptVault offers an AI image generation feature ("Generate") that combines a prompt from our gallery with a reference photo you provide to create a new image. When you use this feature:</p>
+    <ul>
+      <li>Your reference photo is sent to Cloudflare Workers AI for processing. It is not stored by Cloudflare beyond the duration of the API request.</li>
+      <li>The resulting generated image is stored privately in our secure storage and is accessible only to you.</li>
+      <li>Your reference photo is deleted from our servers immediately after generation, whether it succeeds or fails.</li>
+      <li>A short rewarded advertisement must be watched before each generation. Ad interactions are handled by Google AdMob (see Section 5).</li>
+      <li>Free-tier users receive a limited number of generations per day, tracked via your anonymous identifier.</li>
+    </ul>
+
+    <hr class="divider" />
+
+    <h2>4. Third-Party Services</h2>
     <p>PromptVault uses the following third-party services:</p>
     <ul>
-      <li><strong>Supabase</strong> — for database storage and image hosting. Data is stored on Supabase servers. See <a href="https://supabase.com/privacy" target="_blank">Supabase's Privacy Policy</a>.</li>
+      <li><strong>Supabase</strong> — for database storage, authentication, and image hosting. Data is stored on Supabase servers. See <a href="https://supabase.com/privacy" target="_blank">Supabase's Privacy Policy</a>.</li>
+      <li><strong>Cloudflare Workers AI</strong> — for AI image generation. Your reference photo and prompt are transmitted to Cloudflare's API to produce the generated image. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a>.</li>
       <li><strong>Google AdMob</strong> — for serving advertisements within the app. AdMob may collect device identifiers and usage data to serve relevant ads. See <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>.</li>
     </ul>
 
     <hr class="divider" />
 
-    <h2>4. Advertising</h2>
-    <p>PromptVault displays ads powered by Google AdMob. These ads may be personalised based on your interests. You can opt out of personalised advertising through your device's advertising settings (Settings → Google → Ads → Opt out of Ads Personalisation on Android).</p>
+    <h2>5. Advertising</h2>
+    <p>PromptVault displays ads powered by Google AdMob, including rewarded ads that unlock the AI image generation feature. These ads may be personalised based on your interests. You can opt out of personalised advertising through your device's advertising settings (Settings → Google → Ads → Opt out of Ads Personalisation on Android).</p>
 
     <hr class="divider" />
 
-    <h2>5. Data Retention</h2>
-    <p>Submitted content (images and prompts) is retained for as long as the app is active. You may request deletion of your submitted content by contacting us at the email below. Locally stored data (saved prompts, preferences) can be cleared by uninstalling the app.</p>
+    <h2>6. Data Retention</h2>
+    <ul>
+      <li><strong>Reference photos</strong> are deleted immediately after AI generation completes (within seconds). A background cleanup also removes any orphaned files within 24 hours.</li>
+      <li><strong>Generated images</strong> are accessible via a private link for up to 1 hour after creation. Long-term storage of your generations is not guaranteed.</li>
+      <li><strong>Submitted gallery content</strong> (images and prompts) is retained for as long as the app is active. You may request deletion by contacting us.</li>
+      <li><strong>Anonymous quota records</strong> reset daily and are not linked to any personally identifiable information.</li>
+      <li><strong>Locally stored data</strong> (saved prompts, preferences) can be cleared by uninstalling the app.</li>
+    </ul>
 
     <hr class="divider" />
 
-    <h2>6. Children's Privacy</h2>
+    <h2>7. Children's Privacy</h2>
     <p>PromptVault is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has submitted content, please contact us and we will remove it promptly.</p>
 
     <hr class="divider" />
 
-    <h2>7. Changes to This Policy</h2>
+    <h2>8. Changes to This Policy</h2>
     <p>We may update this Privacy Policy from time to time. Changes will be reflected on this page with an updated date. Continued use of the app after changes constitutes acceptance of the revised policy.</p>
 
     <hr class="divider" />
 
-    <h2>8. Contact Us</h2>
+    <h2>9. Contact Us</h2>
     <p>If you have any questions about this Privacy Policy, please contact us at:</p>
     <p><a href="mailto:bodar.tirth@gmail.com">bodar.tirth@gmail.com</a></p>
   </div>
